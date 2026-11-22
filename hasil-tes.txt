@@ -1,0 +1,111 @@
+
+==================================================
+  SELF-TEST nRF24L01+  |  ESP-12E / NodeMCU
+  SPI bit-bang, tanpa library tambahan
+==================================================
+[1] Deteksi susunan pin SPI
+    CE=D1/GPIO5  CSN=D3/GPIO0  IRQ=D2/GPIO4
+    coba SCK=D7/GPIO13  MOSI=D6/GPIO12  MISO=D5/GPIO14  -> MENJAWAB
+
+    => Susunan yang dipakai modul:
+       SCK  -> D7/GPIO13
+       MOSI -> D6/GPIO12
+       MISO -> D5/GPIO14
+       (BUKAN susunan SPI hardware NodeMCU)
+  [ OK ] modul menjawab di SPI            3.3V + GND + SPI terhubung
+[2] Register CONFIG (tulis/baca)
+  [ OK ] CONFIG bisa ditulis              tulis 0x0C -> baca 0x0C, tulis 0x2C -> baca 0x2C
+[3] Signature STATUS
+  [ OK ] STATUS sesuai nRF24L01+          STATUS=0x0E FIFO_STATUS=0x01
+[4] Integritas bit register (pola 0xFF/0xA5/0x5A/0x00)
+  [ OK ] EN_AA                            reg 0x01 mask 0x3F
+  [ OK ] EN_RXADDR                        reg 0x02 mask 0x3F
+  [ OK ] SETUP_RETR                       reg 0x04 mask 0xFF
+  [ OK ] RF_CH                            reg 0x05 mask 0x7F
+  [ OK ] RF_SETUP                         reg 0x06 mask 0x2E
+  [ OK ] RX_PW_P0                         reg 0x11 mask 0x3F
+  [ OK ] RX_PW_P1                         reg 0x12 mask 0x3F
+  [ OK ] FEATURE (via ACTIVATE)           butuh chip nRF24L01+ asli
+  [ OK ] DYNPD                            
+[5] Alamat (3/4/5 byte)
+  [ OK ] SETUP_AW 3/4/5 byte              
+  [ OK ] alamat TX & RX cocok             TX_ADDR=nRF24 RX_ADDR_P0=nRF24
+[6] FIFO TX
+  [ OK ] FIFO TX terisi & ter-flush       kosong=0x11 terisi=0x01 flush=0x11
+[7] PLL / synthesizer RF
+  [ OK ] PLL mengunci (RF hidup)          RF_SETUP=0xB6, PLL_LOCK=1
+[8] Deteksi CE + transmisi nyata + pin IRQ
+    CE D1/GPIO5   -> STATUS=0x0E FIFO=0x01  tidak ada reaksi
+    CE D2/GPIO4   -> STATUS=0x0E FIFO=0x01  tidak ada reaksi
+    CE D0/GPIO16  -> STATUS=0x1E FIFO=0x01  TRANSMIT (paket keluar)
+  [WARN] lokasi pin CE                    CE ternyata di D0/GPIO16, bukan D1/GPIO5
+  [ OK ] transmisi + auto-ack (MAX_RT)    MAX_RT: paket terkirim tanpa ACK (wajar 1 modul), OBS=0x23
+  [ OK ] transmisi tanpa auto-ack (TX_DS) TX_DS=1, FIFO setelah kirim=0x11
+  [ OK ] pin IRQ (D2) merespons           saat event=LOW, setelah clear=HIGH
+[9] Scan aktivitas RF 2.4 GHz (informasi tambahan)
+    kanal bersinyal:
+    0 kanal ada sinyal > -64 dBm (WiFi ch1/6/11 ~ nRF ch 12/37/62).
+
+================= HASIL =================
+  Lulus: 19   Gagal: 0
+  Pin terbaca: SCK=D7/GPIO13 MOSI=D6/GPIO12 MISO=D5/GPIO14 CE=D0/GPIO16 IRQ=D2/GPIO4
+  Catatan: CE merespons di D0/GPIO16, bukan D1/GPIO5 seperti di tabel.
+           Pindahkan kabel CE ke D1/GPIO5 bila ingin sesuai tabel.
+  VERDICT: MODUL nRF24L01+ BERFUNGSI.
+  Bukti: SPI + semua register OK, PLL terkunci, paket
+         benar-benar ditransmisikan, pin IRQ merespons.
+=========================================
+
+---------------- putaran ulang #1 ----------------
+[1] Deteksi susunan pin SPI
+    CE=D1/GPIO5  CSN=D3/GPIO0  IRQ=D2/GPIO4
+    coba SCK=D7/GPIO13  MOSI=D6/GPIO12  MISO=D5/GPIO14  -> MENJAWAB
+
+    => Susunan yang dipakai modul:
+       SCK  -> D7/GPIO13
+       MOSI -> D6/GPIO12
+       MISO -> D5/GPIO14
+       (BUKAN susunan SPI hardware NodeMCU)
+  [ OK ] modul menjawab di SPI            3.3V + GND + SPI terhubung
+[2] Register CONFIG (tulis/baca)
+  [ OK ] CONFIG bisa ditulis              tulis 0x0C -> baca 0x0C, tulis 0x2C -> baca 0x2C
+[3] Signature STATUS
+  [ OK ] STATUS sesuai nRF24L01+          STATUS=0x0E FIFO_STATUS=0x11
+[4] Integritas bit register (pola 0xFF/0xA5/0x5A/0x00)
+  [ OK ] EN_AA                            reg 0x01 mask 0x3F
+  [ OK ] EN_RXADDR                        reg 0x02 mask 0x3F
+  [ OK ] SETUP_RETR                       reg 0x04 mask 0xFF
+  [ OK ] RF_CH                            reg 0x05 mask 0x7F
+  [ OK ] RF_SETUP                         reg 0x06 mask 0x2E
+  [ OK ] RX_PW_P0                         reg 0x11 mask 0x3F
+  [ OK ] RX_PW_P1                         reg 0x12 mask 0x3F
+  [ OK ] FEATURE (via ACTIVATE)           butuh chip nRF24L01+ asli
+  [ OK ] DYNPD                            
+[5] Alamat (3/4/5 byte)
+  [ OK ] SETUP_AW 3/4/5 byte              
+  [ OK ] alamat TX & RX cocok             TX_ADDR=nRF24 RX_ADDR_P0=nRF24
+[6] FIFO TX
+  [ OK ] FIFO TX terisi & ter-flush       kosong=0x11 terisi=0x01 flush=0x11
+[7] PLL / synthesizer RF
+  [ OK ] PLL mengunci (RF hidup)          RF_SETUP=0xB6, PLL_LOCK=1
+[8] Deteksi CE + transmisi nyata + pin IRQ
+    CE D1/GPIO5   -> STATUS=0x0E FIFO=0x01  tidak ada reaksi
+    CE D2/GPIO4   -> STATUS=0x0E FIFO=0x01  tidak ada reaksi
+    CE D0/GPIO16  -> STATUS=0x1E FIFO=0x01  TRANSMIT (paket keluar)
+  [WARN] lokasi pin CE                    CE ternyata di D0/GPIO16, bukan D1/GPIO5
+  [ OK ] transmisi + auto-ack (MAX_RT)    MAX_RT: paket terkirim tanpa ACK (wajar 1 modul), OBS=0x23
+  [ OK ] transmisi tanpa auto-ack (TX_DS) TX_DS=1, FIFO setelah kirim=0x11
+  [ OK ] pin IRQ (D2) merespons           saat event=LOW, setelah clear=HIGH
+[9] Scan aktivitas RF 2.4 GHz (informasi tambahan)
+    kanal bersinyal:
+    0 kanal ada sinyal > -64 dBm (WiFi ch1/6/11 ~ nRF ch 12/37/62).
+
+================= HASIL =================
+  Lulus: 19   Gagal: 0
+  Pin terbaca: SCK=D7/GPIO13 MOSI=D6/GPIO12 MISO=D5/GPIO14 CE=D0/GPIO16 IRQ=D2/GPIO4
+  Catatan: CE merespons di D0/GPIO16, bukan D1/GPIO5 seperti di tabel.
+           Pindahkan kabel CE ke D1/GPIO5 bila ingin sesuai tabel.
+  VERDICT: MODUL nRF24L01+ BERFUNGSI.
+  Bukti: SPI + semua register OK, PLL terkunci, paket
+         benar-benar ditransmisikan, pin IRQ merespons.
+=========================================
