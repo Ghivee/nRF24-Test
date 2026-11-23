@@ -9,4 +9,4 @@ build/
 Thumbs.db
 coverage/
 .vscode/
-.idea/
+.idea/tools/arduino-cli.exe
